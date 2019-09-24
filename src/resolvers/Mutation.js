@@ -46,6 +46,36 @@ const Mutation = {
 
         return deletedUsers[0]
     },
+    updateUser(parent, args, { db }, info) {
+        //actualizar usuarios
+        const { id, data } = args
+        //si esta el post.id es igual al id de los argumentos-> id==db.id
+        const user = db.users.find((user) => user.id === id)
+        //sino esta el usuario, error
+        if (!user) {
+            throw new Error('User not found')
+        }
+        //comprobar que todos los datos a actualizar tienen correctamente enviados los tipos
+        if (typeof data.email === 'string') {
+            const emailTaken = db.users.some((user) => user.email === data.email)
+
+            if (emailTaken) {
+                throw new Error('Email taken')
+            }
+
+            user.email = data.email
+        }
+
+        if (typeof data.name === 'string') {
+            user.name = data.name
+        }
+
+        if (typeof data.age !== 'undefined') {
+            user.age = data.age
+        }
+
+        return user
+    },
     createPost(parent, args, { db }, info) {
         // Crear Post, si existe el usuario, coincide user id y author
         const userExists = db.users.some((user) => user.id === args.data.author)
@@ -77,6 +107,30 @@ const Mutation = {
 
         return deletedPosts[0]
     },
+    updatePost(parent, args, { db }, info) {
+        //actualizar post, se mete en una constante los argumentos del post id y data
+        const { id, data } = args
+        //si esta el post.id es igual al id de los argumentos-> id==db.id
+        const post = db.posts.find((post) => post.id === id)
+        //sino se encuentra el post arrojar error
+        if (!post) {
+            throw new Error('Post not found')
+        }
+         //comprobar que todos los datos a actualizar tienen correctamente enviados los tipos
+        if (typeof data.title === 'string') {
+            post.title = data.title
+        }
+
+        if (typeof data.body === 'string') {
+            post.body = data.body
+        }
+
+        if (typeof data.published === 'boolean') {
+            post.published = data.published
+        }
+
+        return post
+    },
     createComment(parent, args, { db }, info) {
         // comprobar si en la data esiste el autor e ide del post y si esta publicado
         const userExists = db.users.some((user) => user.id === args.data.author)
@@ -106,6 +160,22 @@ const Mutation = {
         const deletedComments = db.comments.splice(commentIndex, 1)
 
         return deletedComments[0]
+    },
+
+    updateComment(parent, args, { db }, info) {
+        const { id, data } = args
+        //si esta el post.id es igual al id de los argumentos-> id==db.id
+        const comment = db.comments.find((comment) => comment.id === id)
+         // sino se encuentra el usuario arrojar error
+        if (!comment) {
+            throw new Error('Comment not found')
+        }
+         //comprobar que todos los datos a actualizar tienen correctamente enviados los tipos
+        if (typeof data.text === 'string') {
+            comment.text = data.text
+        }
+
+        return comment
     }
 }
 
